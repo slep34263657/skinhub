@@ -64,7 +64,11 @@
     async function loadSkins() {
       const container = document.getElementById('container');
       try {
-        const res = await fetch('skins.json');
+        // Get base path from repo name in URL
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const basePath = pathParts.length > 0 ? '/' + pathParts[0] + '/' : '/';
+        
+        const res = await fetch(basePath + 'skins.json');
         if (!res.ok) throw new Error('Failed to load skins.json');
         
         const skins = await res.json();
@@ -86,7 +90,7 @@
           const btn = document.createElement('button');
           btn.textContent = 'Download';
           btn.onclick = () => {
-            window.location.href = `skins/${skinName}.osk`;
+            window.location.href = basePath + 'skins/' + skinName + '.osk';
           };
           
           div.appendChild(nameSpan);
