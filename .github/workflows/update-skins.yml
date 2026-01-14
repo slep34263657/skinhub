@@ -45,9 +45,6 @@ jobs:
       - name: Copy index.html
         run: cp index.html dist/index.html
 
-      - name: List dist contents
-        run: ls -la dist/ && cat dist/skins.json
-
       - name: Upload to Pages
         uses: actions/upload-pages-artifact@v3
         with:
