@@ -45,6 +45,10 @@ jobs:
       - name: Copy index.html
         run: cp index.html dist/index.html
 
+      - name: Copy favicon
+        run: cp favicon.ico dist/favicon.ico
+
+
       - name: Upload to Pages
         uses: actions/upload-pages-artifact@v3
         with:
