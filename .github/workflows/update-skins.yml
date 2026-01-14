@@ -1,11 +1,11 @@
-name: Build and deploy site
+name: Build and Deploy
 
 on:
   push:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -14,31 +14,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Create dist directory
+        run: mkdir -p dist/skins
 
-      - name: Generate skins.json
-        run: node generate-skins-json.js
-
-      - name: Zip skins into .osk
+      - name: Zip each skin folder into .osk file
         run: |
-          mkdir -p dist/skins
-          for d in skins/*/; do
-            name=$(basename "$d")
-            echo "Zipping $name"
-            (cd "$d" && zip -r "../../dist/skins/$name.osk" .)
+          for skin_dir in skins/*/; do
+            skin_name=$(basename "$skin_dir")
+            echo "Creating $skin_name.osk"
+            (cd "$skin_dir" && zip -r -q "../../dist/skins/$skin_name.osk" .)
           done
 
-      - name: Upload Pages artifact
+      - name: Generate skins list
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const skinsDir = path.join(__dirname, 'skins');
+          const skins = fs.readdirSync(skinsDir).filter(f => {
+            const stat = fs.statSync(path.join(skinsDir, f));
+            return stat.isDirectory();
+          }).sort();
+          fs.writeFileSync('dist/skins.json', JSON.stringify(skins, null, 2));
+          console.log('Generated skins list:', skins);
+          "
+
+      - name: Copy index.html
+        run: cp index.html dist/index.html
+
+      - name: Upload to Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/
-  
+          path: dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
