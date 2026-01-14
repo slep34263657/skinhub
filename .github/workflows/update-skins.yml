@@ -33,7 +33,7 @@ jobs:
           node << 'EOF'
           const fs = require('fs');
           const path = require('path');
-          const skinsDir = path.join(__dirname, 'skins');
+          const skinsDir = './skins';
           const skins = fs.readdirSync(skinsDir).filter(f => {
             const stat = fs.statSync(path.join(skinsDir, f));
             return stat.isDirectory();
