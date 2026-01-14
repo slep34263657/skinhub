@@ -68,7 +68,7 @@
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         const basePath = pathParts.length > 0 ? '/' + pathParts[0] + '/' : '/';
         
-        // Add cache-busting query parameter
+        
         const res = await fetch(basePath + 'skins.json?t=' + Date.now());
         if (!res.ok) throw new Error('Failed to load skins.json');
         
