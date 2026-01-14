@@ -30,7 +30,7 @@ jobs:
 
       - name: Generate skins list
         run: |
-          node -e "
+          node << 'EOF'
           const fs = require('fs');
           const path = require('path');
           const skinsDir = path.join(__dirname, 'skins');
@@ -40,7 +40,7 @@ jobs:
           }).sort();
           fs.writeFileSync('dist/skins.json', JSON.stringify(skins, null, 2));
           console.log('Generated skins list:', skins);
-          "
+          EOF
 
       - name: Copy index.html
         run: cp index.html dist/index.html
