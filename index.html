@@ -8,7 +8,6 @@
   <h1>osu! Skin Archive</h1>
   <ul id="skin-list"></ul>
 
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script>
     async function loadSkins() {
       const res = await fetch("skins.json");
@@ -19,35 +18,17 @@
       for (const skinName of Object.keys(skins)) {
         const li = document.createElement("li");
 
-        const text = document.createTextNode(skinName + " ");
-        li.appendChild(text);
+        li.textContent = skinName + " ";
 
         const btn = document.createElement("button");
         btn.textContent = "Download";
-        btn.onclick = () => downloadSkin(skinName, skins[skinName]);
+        btn.onclick = () => {
+          window.location.href = `dist/skins/${skinName}.osk`;
+        };
 
         li.appendChild(btn);
         list.appendChild(li);
       }
-    }
-
-    async function downloadSkin(name, files) {
-      const zip = new JSZip();
-
-      for (const file of files) {
-        const res = await fetch(`skins/${name}/${file}`);
-        const data = await res.arrayBuffer();
-        zip.file(file, data);
-      }
-
-      const blob = await zip.generateAsync({ type: "blob" });
-
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${name}.osk`;
-      a.click();
-
-      URL.revokeObjectURL(a.href);
     }
 
     loadSkins();
