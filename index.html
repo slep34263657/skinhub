@@ -46,6 +46,11 @@
       margin-bottom: 30px;
     }
     
+    h2 {
+      margin-top: 32px;
+      color: var(--text-primary);
+    }
+    
     .skin-item {
       display: flex;
       justify-content: space-between;
@@ -109,26 +114,56 @@
   </div>
 
   <script>
-    async function loadSkins() {
-      const container = document.getElementById('container');
-      try {
-        // Get base path from repo name in URL
-        const pathParts = window.location.pathname.split('/').filter(Boolean);
-        const basePath = pathParts.length > 0 ? '/' + pathParts[0] + '/' : '/';
+  const SECTIONS = [
+    {
+      title: "2025",
+      skins: [
+        "slep nm 2025",
+        "slep dt 2025"
+      ]
+    },
+    {
+      title: "2023",
+      skins: [
+        "slep 2023 [black] (lazer)",
+        "slep 2023 [black] (stable)"
+      ]
+    },
+    {
+      title: "biboo skin",
+      skins: [
+        "pebbles [nm]",
+        "pebbles [dt]",
+        "pebbles [silly]"
+      ]
+    }
+  ];
+
+  async function loadSkins() {
+    const container = document.getElementById('container');
+    try {
+      // Get base path from repo name in URL
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const basePath = pathParts.length > 0 ? '/' + pathParts[0] + '/' : '/';
+      
+      const res = await fetch(basePath + 'skins.json?t=' + Date.now());
+      if (!res.ok) throw new Error('Failed to load skins.json');
+      
+      const skins = await res.json();
+      const used = new Set();
+      
+      container.innerHTML = '';
+      
+      // Render sections
+      SECTIONS.forEach(section => {
+        const header = document.createElement('h2');
+        header.textContent = section.title;
+        container.appendChild(header);
         
-        
-        const res = await fetch(basePath + 'skins.json?t=' + Date.now());
-        if (!res.ok) throw new Error('Failed to load skins.json');
-        
-        const skins = await res.json();
-        
-        if (!Array.isArray(skins) || skins.length === 0) {
-          container.innerHTML = '<p class="error">No skins found</p>';
-          return;
-        }
-        
-        container.innerHTML = '';
-        skins.forEach(skinName => {
+        section.skins.forEach(skinName => {
+          if (!skins.includes(skinName)) return;
+          used.add(skinName);
+          
           const div = document.createElement('div');
           div.className = 'skin-item';
           
@@ -146,13 +181,42 @@
           div.appendChild(btn);
           container.appendChild(div);
         });
-      } catch (error) {
-        container.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-        console.error(error);
-      }
-    }
+      });
 
-    loadSkins();
+      //  any remaining skins
+      const remaining = skins.filter(s => !used.has(s));
+      if (remaining.length) {
+        const header = document.createElement('h2');
+        header.textContent = 'Other';
+        container.appendChild(header);
+
+        remaining.forEach(skinName => {
+          const div = document.createElement('div');
+          div.className = 'skin-item';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'skin-name';
+          nameSpan.textContent = skinName;
+
+          const btn = document.createElement('button');
+          btn.textContent = 'Download';
+          btn.onclick = () => {
+            window.location.href = basePath + 'skins/' + skinName + '.osk';
+          };
+
+          div.appendChild(nameSpan);
+          div.appendChild(btn);
+          container.appendChild(div);
+        });
+      }
+      
+    } catch (error) {
+      container.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+      console.error(error);
+    }
+  }
+
+  loadSkins();
   </script>
 </body>
 </html>
